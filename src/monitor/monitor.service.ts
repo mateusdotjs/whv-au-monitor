@@ -5,19 +5,20 @@ import { NotificationService } from 'src/monitor/notification.service';
 
 @Injectable()
 export class MonitorService {
-  private readonly TARGET_URL =
-    'https://immi.homeaffairs.gov.au/what-we-do/whm-program/status-of-country-caps';
+  private lastStatus: string;
 
   constructor(private notificationService: NotificationService) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
   async checkStatus() {
     try {
       const status = await this.getBrazilStatus();
-
-      if (status === 'PAUSED' || status === '' || !status) return;
-
       console.log(status);
+
+      if (status === this.lastStatus) return;
+      if (status === '' || !status) return;
+
+      this.lastStatus = status;
 
       await this.notificationService.sendDiscord(
         '⚠️ Status das inscrições: ' + status + ' ⚠️',
@@ -28,7 +29,7 @@ export class MonitorService {
   }
 
   async getBrazilStatus() {
-    const response = await fetch(this.TARGET_URL);
+    const response = await fetch(process.env.TARGET_URL as string);
     if (!response.ok) {
       throw new InternalServerErrorException();
     }
@@ -41,8 +42,8 @@ export class MonitorService {
       .filter((i, el) => $(el).find('td').first().text().trim() === 'Brazil')
       .first();
 
-    const status = brazilRow.find('td span').text().trim().toUpperCase();
-
+    const rawStatus = brazilRow.find('td span').text();
+    const status = rawStatus.replace(/[^a-zA-Z]/g, '').toUpperCase();
     return status;
   }
 }

@@ -46,4 +46,15 @@ export class MonitorService {
     const status = rawStatus.replace(/[^a-zA-Z]/g, '').toUpperCase();
     return status;
   }
+
+  @Cron(CronExpression.EVERY_DAY_AT_10PM)
+  async healthcheck() {
+    try {
+      await this.notificationService.sendDiscord(
+        'Não se preocupem eu estou bem 😎',
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }

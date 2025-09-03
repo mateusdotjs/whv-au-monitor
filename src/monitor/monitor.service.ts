@@ -14,7 +14,7 @@ export class MonitorService {
     try {
       const status = await this.getBrazilStatus();
       console.log(status);
-
+      console.log('testing ci cd');
       if (status === this.lastStatus) return;
       if (status === '' || !status) return;
       if (status === 'PAUSED' && this.lastStatus === '') {

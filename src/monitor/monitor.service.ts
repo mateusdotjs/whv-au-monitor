@@ -23,7 +23,7 @@ export class MonitorService {
       }
 
       await this.notificationService.sendDiscord(
-        '⚠️ Status das inscrições: ' + status + ' ⚠️',
+        '⚠️ @everyone Status das inscrições: ' + status + ' ⚠️',
       );
     } catch (error) {
       console.error(error);

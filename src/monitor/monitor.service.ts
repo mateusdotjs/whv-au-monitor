@@ -5,7 +5,7 @@ import { NotificationService } from 'src/monitor/notification.service';
 
 @Injectable()
 export class MonitorService {
-  private lastStatus: string;
+  private lastStatus: string = '';
 
   constructor(private notificationService: NotificationService) {}
 
@@ -17,8 +17,10 @@ export class MonitorService {
 
       if (status === this.lastStatus) return;
       if (status === '' || !status) return;
-
-      this.lastStatus = status;
+      if (status === 'PAUSED' && this.lastStatus === '') {
+        this.lastStatus = status;
+        return;
+      }
 
       await this.notificationService.sendDiscord(
         '⚠️ Status das inscrições: ' + status + ' ⚠️',
